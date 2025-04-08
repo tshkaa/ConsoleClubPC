@@ -13,7 +13,7 @@ class Program
 
 class ComputerClub
 {
-    private int _ClubBalance = 0;
+    private int _clubBalance;
     
     private List<Computer> _computers = new List<Computer>();
     private Queue<Client> _clients = new Queue<Client>();
@@ -48,19 +48,53 @@ class ComputerClub
         }
     }
 
+    private void SpendOneTime()
+    {
+        foreach (var computer in _computers)
+        {
+            computer.SpendTime();
+        }
+    }
     public void WorkOn()
     {
-        Console.WriteLine("Добро пожаловать в Компьютерный Клуб.\n-------------------------------------------");
-            
         while (_clients.Count > 0)
         {
+            Console.WriteLine("Добро пожаловать в Компьютерный Клуб.\n-------------------------------------------");
             Client newClient = _clients.Dequeue();
-            Console.WriteLine($"\nБаланс компьютерного клуба: {_ClubBalance}\n");
+            Console.WriteLine($"\nБаланс компьютерного клуба: {_clubBalance}\n");
             Console.WriteLine($"У нас новый клиент: \"Хочу купить {newClient.UsingTime} минут.\"\n");
             
             ShowStatsComputers();
 
+            string userInput = Console.ReadLine();
+            if (int.TryParse(userInput, out int userInputInt))
+            {
+                if (userInputInt >= 0 && userInputInt < _computers.Count)
+                {
+                    userInputInt--;
+                    if (_computers[userInputInt].IsRunning)
+                        Console.WriteLine("Клиент не смог сесть за стол, ведь он занят. Он ушел...");
+                    else
+                    {
+                        if (newClient.CheckSolvency(_computers[userInputInt]))
+                        {
+                            Console.WriteLine($"Клиент оплатил компьютер {userInputInt + 1}");
+                            _clubBalance += newClient.Pay();
+                            _computers[userInputInt].BecomeRunning(newClient);
+                        }
+                        else
+                            Console.WriteLine("Клиент не смог заплатить за компьютер. Он ушел...");
+                    }
+                }
+            }
+            else
+                Console.WriteLine("Клиент недоволен вашим выбором. Он ушел...");
+
+            Console.Write("Для перехода к следующему клиенту нажмите любую клавишу:");
             Console.ReadKey();
+            Console.Clear();
+            
+            SpendOneTime();
         }
     }
 }
@@ -70,13 +104,7 @@ class Computer
     private Client _client;
     private int _remainingTime;
 
-    private bool IsRunning
-    {
-        get
-        {
-            return _remainingTime > 0;
-        }
-    }
+    public bool IsRunning { get { return _remainingTime > 0; } }
     
     public int PricePerTime { get; private set; }
 
@@ -113,11 +141,31 @@ class Computer
 class Client
 {
     private int _money;
+    private int _moneyToPay;
     public int UsingTime { get; private set; }
 
     public Client(int money, Random random)
     {
         _money = money;
         UsingTime = random.Next(10, 40);
+    }
+    public bool CheckSolvency(Computer computer)
+    {
+        _moneyToPay = computer.PricePerTime * UsingTime;
+        if (_money >= _moneyToPay)
+        {
+            return true;
+        }
+        else
+        {
+            _moneyToPay = 0;
+            return false;
+        }
+    }
+
+    public int Pay()
+    {
+        _money -= _moneyToPay;
+        return _moneyToPay;
     }
 }
