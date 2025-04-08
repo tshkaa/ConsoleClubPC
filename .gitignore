@@ -1,0 +1,43 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+# Папки компиляции и сборки
+/bin/
+/obj/
+
+# Папка с выходными файлами публикации
+/publish/
+
+# Файлы пользовательских настроек Rider
+.idea/
+*.DotSettings.user
+
+# Файлы пользовательских настроек Visual Studio
+.vs/
+*.user
+*.suo
+*.userprefs
+
+# Локальные файлы базы данных
+*.mdf
+*.ldf
+
+# Файлы NuGet
+/packages/
+*.nupkg
+.nuget/
+
+# Файлы кэша и временные файлы
+/.cache/
+/.temp/
+/temp/
+
+# Файлы логов
+/logs/
+*.log
+
+# Файлы резервных копий
+*.bak
+*.tmp
